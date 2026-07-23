@@ -1,0 +1,17 @@
+{
+  "name": "jss-bill-generator",
+  "version": "1.0.0",
+  "description": "JSS Engineering Works Bill Generator App",
+  "main": "app.js",
+  "scripts": {
+    "build": "echo 'No build step required'"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@capacitor/android": "^8.4.2",
+    "@capacitor/cli": "^8.4.2",
+    "@capacitor/core": "^8.4.2"
+  }
+}

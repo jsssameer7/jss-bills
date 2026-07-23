@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <!-- Unhandled Error Diagnostic Banner -->
+    <script>
+        window.addEventListener('error', function(e) {
+            var errDiv = document.getElementById('debug-error-banner');
+            if (!errDiv) {
+                errDiv = document.createElement('div');
+                errDiv.id = 'debug-error-banner';
+                errDiv.style.position = 'fixed';
+                errDiv.style.top = '0';
+                errDiv.style.left = '0';
+                errDiv.style.right = '0';
+                errDiv.style.background = '#ef4444';
+                errDiv.style.color = '#fff';
+                errDiv.style.padding = '15px';
+                errDiv.style.zIndex = '99999';
+                errDiv.style.fontFamily = 'monospace';
+                errDiv.style.fontSize = '13px';
+                errDiv.style.fontWeight = 'bold';
+                errDiv.style.boxShadow = '0 4px 10px rgba(0,0,0,0.3)';
+                errDiv.innerHTML = '<div style="max-width:1200px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;">' +
+                    '<span>⚠️ JS ERROR: ' + e.message + ' in ' + e.filename.split("/").pop() + ' at line ' + e.lineno + '</span>' +
+                    '<button onclick="this.parentElement.parentElement.remove()" style="background:none;border:none;color:#fff;cursor:pointer;font-size:16px;font-weight:bold;">✕</button>' +
+                    '</div>';
+                document.body.appendChild(errDiv);
+            }
+        });
+    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSS Engineering Works & Bill Generator</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800&family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Main Stylesheet -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- App Header (Hidden during printing) -->
+    <header id="app-header" class="no-print">
+        <div class="header-container">
+            <div class="logo-area">
+                <img src="assets/jss-logo.png" alt="JSS Logo" class="header-logo">
+                <div class="brand-text">
+                    <span class="brand-title">JSS</span>
+                    <span class="brand-sub">ENGINEERING WORKS</span>
+                </div>
+            </div>
+            <nav class="nav-links">
+                <a href="#home" class="nav-link active" onclick="switchTab('home')">Home</a>
+                <a href="#services" class="nav-link" onclick="switchTab('services')">Services</a>
+                <a href="#contact" class="nav-link" onclick="switchTab('contact')">Contact</a>
+                <a href="#billing" class="nav-link btn-billing" onclick="switchTab('billing')">
+                    <i class="fa-solid fa-file-invoice-dollar"></i> Billing Portal
+                </a>
+            </nav>
+            <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main>
+        <!-- Home Section -->
+        <section id="home-section" class="tab-content active no-print">
+            <div class="hero-overlay"></div>
+            <div class="hero-container">
+                <div class="hero-logo-container">
+                    <img src="assets/jss-logo.png" alt="JSS Engineering Works" class="hero-logo animate-glow">
+                </div>
+                <h1 class="hero-title">JSS ENGINEERING WORKS</h1>
+                <p class="hero-tagline">Iron & Steel Fabrication & Erection • Sheet Fixing • Steel Plant • Machinery Works</p>
+                <div class="hero-meta">
+                    <span class="proprietor"><i class="fa-solid fa-user-tie"></i> Jaffar Shareef - Proprietor</span>
+                </div>
+                <div class="hero-cta">
+                    <button class="btn btn-primary" onclick="switchTab('services')">Our Services</button>
+                    <button class="btn btn-gold" onclick="switchTab('billing')">
+                        <i class="fa-solid fa-calculator"></i> Open Billing Portal
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Services Section -->
+        <section id="services-section" class="tab-content no-print">
+            <div class="section-container">
+                <h2 class="section-title">Our Services</h2>
+                <div class="services-grid">
+                    <div class="service-card">
+                        <div class="service-icon"><i class="fa-solid fa-industry"></i></div>
+                        <h3>Iron & Steel Fabrication</h3>
+                        <p>High-quality structural steel fabrication, custom welding, and metal assembly engineered to exact specifications.</p>
+                    </div>
+                    <div class="service-card">
+                        <div class="service-icon"><i class="fa-solid fa-compass-drafting"></i></div>
+                        <h3>Structural Erection</h3>
+                        <p>Safe and efficient erection of structural steel frames for warehouses, commercial buildings, and industrial plants.</p>
+                    </div>
+                    <div class="service-card">
+                        <div class="service-icon"><i class="fa-solid fa-sheet-plastic"></i></div>
+                        <h3>Sheet Fixing</h3>
+                        <p>Professional metal roofing sheet fixing, profile cladding, and insulation services for industrial sheds.</p>
+                    </div>
+                    <div class="service-card">
+                        <div class="service-icon"><i class="fa-solid fa-gears"></i></div>
+                        <h3>Machinery Works</h3>
+                        <p>All types of industrial machinery works, lathe operations, precision machining, and custom hardware installations.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact Section -->
+        <section id="contact-section" class="tab-content no-print">
+            <div class="section-container">
+                <h2 class="section-title">Contact Us</h2>
+                <div class="contact-grid">
+                    <div class="contact-info-panel">
+                        <img src="assets/jss-logo.png" alt="JSS Engineering Works" class="contact-logo">
+                        <div class="contact-details">
+                            <div class="contact-item">
+                                <div class="contact-icon-wrapper"><i class="fa-solid fa-phone"></i></div>
+                                <div class="contact-text">
+                                    <span class="contact-label">Phone</span>
+                                    <a href="tel:+919845737632" class="contact-value">+91 98457 37632</a>
+                                </div>
+                            </div>
+                            <div class="contact-item">
+                                <div class="contact-icon-wrapper"><i class="fa-solid fa-envelope"></i></div>
+                                <div class="contact-text">
+                                    <span class="contact-label">Email</span>
+                                    <a href="mailto:jsseng.bly@gmail.com" class="contact-value">jsseng.bly@gmail.com</a>
+                                </div>
+                            </div>
+                            <div class="contact-item">
+                                <div class="contact-icon-wrapper"><i class="fa-solid fa-location-dot"></i></div>
+                                <div class="contact-text">
+                                    <span class="contact-label">Address</span>
+                                    <span class="contact-value">
+                                        Janatha Nagar, 6th Cross, 18th Ward,<br>
+                                        ATP Road, Ballari - 583101 (Karnataka)
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="contact-item">
+                                <div class="contact-icon-wrapper"><i class="fa-solid fa-user"></i></div>
+                                <div class="contact-text">
+                                    <span class="contact-label">Proprietor</span>
+                                    <span class="contact-value">Jaffar Shareef</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="contact-map-panel">
+                        <div class="map-card">
+                            <i class="fa-solid fa-map-location-dot map-placeholder-icon"></i>
+                            <h3>JSS Engineering Works</h3>
+                            <p>Ballari, Karnataka, India</p>
+                            <a href="https://maps.google.com/?q=ATP+Road,+Janatha+Nagar,+Ballari+583101" target="_blank" class="btn btn-gold btn-sm">
+                                <i class="fa-solid fa-route"></i> Get Directions
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Billing Section -->
+        <section id="billing-section" class="tab-content no-print">
+            <div class="billing-container">
+                <!-- Editor Sidebar (Left Panel) -->
+                <div class="billing-editor">
+                    <div class="editor-header">
+                        <h2><i class="fa-solid fa-sliders"></i> Invoice Editor</h2>
+                        <div class="editor-actions-top">
+                            <button class="btn btn-outline btn-sm" onclick="loadSampleInvoice()">
+                                <i class="fa-solid fa-database"></i> Sample Data
+                            </button>
+                            <button class="btn btn-outline-danger btn-sm" onclick="resetInvoiceForm()">
+                                <i class="fa-solid fa-trash-can"></i> Clear
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Editor Accordion -->
+                    <div class="editor-sections">
+                        <!-- Sender Details Card -->
+                        <div class="editor-card">
+                            <div class="card-header" onclick="toggleCardBody(this)">
+                                <h3><i class="fa-solid fa-building"></i> 1. Vendor Details (Seller)</h3>
+                                <i class="fa-solid fa-chevron-up toggle-icon"></i>
+                            </div>
+                            <div class="card-body">
+                                <div class="form-group">
+                                    <label for="seller-name">Vendor Name</label>
+                                    <input type="text" id="seller-name" value="JAFFAR SHAREEF" oninput="updateInvoicePreview()">
+                                </div>
+                                <div class="form-group">
+                                    <label for="seller-address">Address</label>
+                                    <textarea id="seller-address" rows="2" oninput="updateInvoicePreview()">WARD NO-18, ATP ROAD, JANATHA NAGAR, BALLARI-583101</textarea>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-6">
+                                        <label for="seller-state">State</label>
+                                        <input type="text" id="seller-state" value="KARNATAKA" oninput="updateInvoicePreview()">
+                                    </div>
+                                    <div class="form-group col-6">
+                                        <label for="seller-state-code">State Code</label>
+                                        <input type="text" id="seller-state-code" value="KA" oninput="updateInvoicePreview()">
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-6">
+                                        <label for="seller-pan">PAN Number</label>
+                                        <input type="text" id="seller-pan" value="AAHPZ8535G" oninput="updateInvoicePreview()">
+                                    </div>
+                                    <div class="form-group col-6">
+                                        <label for="invoice-copy-label">Invoice Copy Label</label>
+                                        <input type="text" id="invoice-copy-label" value="ORIGINAL FOR RECEIPMENT" oninput="updateInvoicePreview()">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Client Details Card -->
+                        <div class="editor-card">
+                            <div class="card-header" onclick="toggleCardBody(this)">
+                                <h3><i class="fa-solid fa-user-tag"></i> 2. Client Details (Bill To)</h3>
+                                <i class="fa-solid fa-chevron-up toggle-icon"></i>
+                            </div>
+                            <div class="card-body">
+                                <div class="form-group">
+                                    <label for="client-name">Client Name</label>
+                                    <input type="text" id="client-name" placeholder="e.g. KATARIYA MOVERS" oninput="updateInvoicePreview()">
+                                </div>
+                                <div class="form-group">
+                                    <label for="client-address">Client Address</label>
+                                    <textarea id="client-address" rows="2" placeholder="e.g. PLOT No. 39, GHORPADE NAGAR..." oninput="updateInvoicePreview()"></textarea>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-6">
+                                        <label for="client-gstin">GSTIN</label>
+                                        <input type="text" id="client-gstin" placeholder="GSTIN No. (Optional)" oninput="updateInvoicePreview()">
+                                    </div>
+                                    <div class="form-group col-6">
+                                        <label for="invoice-date">Invoice Date</label>
+                                        <input type="text" id="invoice-date" placeholder="e.g. 11.7.26" oninput="updateInvoicePreview()">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Line Items Card -->
+                        <div class="editor-card">
+                            <div class="card-header" onclick="toggleCardBody(this)">
+                                <h3><i class="fa-solid fa-list-check"></i> 3. Description of Services / Items</h3>
+                                <i class="fa-solid fa-chevron-up toggle-icon"></i>
+                            </div>
+                            <div class="card-body">
+                                <div id="items-editor-container">
+                                    <!-- Dynamic items list goes here -->
+                                </div>
+                                <button class="btn btn-gold btn-full btn-sm mt-3" onclick="addNewItemRow()">
+                                    <i class="fa-solid fa-plus"></i> Add Item / Service Row
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Financial Summary Card -->
+                        <div class="editor-card">
+                            <div class="card-header" onclick="toggleCardBody(this)">
+                                <h3><i class="fa-solid fa-coins"></i> 4. Payments & Summary</h3>
+                                <i class="fa-solid fa-chevron-up toggle-icon"></i>
+                            </div>
+                            <div class="card-body">
+                                <div class="form-row">
+                                    <div class="form-group col-6">
+                                        <label for="advance-amount">Advance Paid (₹)</label>
+                                        <input type="number" id="advance-amount" value="0" min="0" oninput="calculateInvoiceValues()">
+                                    </div>
+                                    <div class="form-group col-6">
+                                        <label for="amount-words-override">Words Override</label>
+                                        <input type="text" id="amount-words-override" placeholder="Auto-generated if empty" oninput="overrideWords()">
+                                    </div>
+                                </div>
+                                <div class="financial-brief">
+                                    <div class="brief-item">
+                                        <span>Sub-Total:</span>
+                                        <span id="brief-subtotal">₹0</span>
+                                    </div>
+                                    <div class="brief-item">
+                                        <span>Advance:</span>
+                                        <span id="brief-advance" class="text-warning">₹0</span>
+                                    </div>
+                                    <div class="brief-item total-highlight">
+                                        <span>Balance:</span>
+                                        <span id="brief-balance" class="text-gold">₹0</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Controls -->
+                    <div class="editor-actions-bottom mt-4">
+                        <button class="btn btn-gold btn-full btn-lg" onclick="triggerPrint()">
+                            <i class="fa-solid fa-download"></i> Print / Save as PDF
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Preview Board (Right Panel) -->
+                <div class="billing-preview">
+                    <div class="preview-header no-print">
+                        <h3><i class="fa-regular fa-eye"></i> Live Print Preview</h3>
+                        <p class="preview-tip">Matches A4 page print layouts exactly.</p>
+                    </div>
+                    <!-- Outer wrapper to scale/center A4 layout -->
+                    <div class="invoice-a4-wrapper">
+                        <!-- Target printable content -->
+                        <div id="printable-invoice" class="invoice-sheet">
+                            <!-- Invoice Box Structure -->
+                            <div class="invoice-box">
+                                <!-- Top Row: Vendor Details & Copy Label -->
+                                <table class="invoice-table top-header-table">
+                                    <tr>
+                                        <td class="col-left border-right border-bottom" style="width: 70%;">
+                                            <div class="text-center font-bold main-title border-bottom-thin" style="padding: 2px 0;">INVOICE</div>
+                                            <div class="meta-row"><strong>Name:</strong> <span id="p-seller-name">JAFFAR SHAREEF</span></div>
+                                            <div class="meta-row"><strong>Address:</strong> <span id="p-seller-address">WARD NO-18, ATP ROAD, JANATHA NAGAR, BALLARI-583101</span></div>
+                                            <div class="meta-row"><strong>State:</strong> <span id="p-seller-state">KARNATAKA</span></div>
+                                            <div class="meta-row"><strong>State Code;</strong> <span id="p-seller-state-code">KA</span></div>
+                                            <div class="meta-row"><strong>PAN</strong> <span id="p-seller-pan">AAHPZ8535G</span></div>
+                                        </td>
+                                        <td class="col-right border-bottom font-bold text-center v-center flex-col justify-center" style="width: 30%;">
+                                            <div id="p-copy-label" style="font-size: 11px; text-transform: uppercase;">ORIGINAL FOR RECEIPMENT</div>
+                                        </td>
+                                    </tr>
+                                </table>
+
+                                <!-- Bill To Title Row -->
+                                <table class="invoice-table billto-title-table">
+                                    <tr>
+                                        <td class="text-center border-bottom font-bold" style="padding: 2px 0; background: #fafafa; font-size: 11px; letter-spacing: 0.5px;">
+                                            Bill to
+                                        </td>
+                                    </tr>
+                                </table>
+
+                                <!-- Client and Invoice Details Row -->
+                                <table class="invoice-table client-details-table">
+                                    <tr>
+                                        <td class="col-left border-right border-bottom" style="width: 70%; padding: 4px 6px;">
+                                            <div class="client-name font-bold text-center" id="p-client-name" style="font-size: 13px; letter-spacing: 0.5px;">KATARIYA MOVERS</div>
+                                            <div class="client-address text-center" id="p-client-address" style="margin-top: 3px; font-size: 10px; line-height: 1.2;">PLOT No. 39, GHORPADE NAGAR, BEHIND BPCL PETROL PUMP, HOSPET-BALLARI MAIN ROAD, TORANAGALLU-583 123</div>
+                                        </td>
+                                        <td class="col-right border-bottom font-bold text-center v-center" style="width: 30%; padding: 6px;">
+                                            <div style="font-size: 11px;">Invoice Date: <span id="p-invoice-date">11.7.26</span></div>
+                                        </td>
+                                    </tr>
+                                </table>
+
+                                <!-- GSTIN Row -->
+                                <table class="invoice-table gstin-table">
+                                    <tr>
+                                        <td class="font-bold border-bottom" style="padding: 2px 6px; font-size: 12px;">
+                                            GSTIN: <span id="p-client-gstin"></span>
+                                        </td>
+                                    </tr>
+                                </table>
+
+                                <!-- Main Items Table -->
+                                <table class="invoice-table items-table">
+                                    <thead>
+                                        <tr>
+                                            <th class="border-right border-bottom text-center" style="width: 8%;">Sl.No</th>
+                                            <th class="border-right border-bottom text-center" style="width: 44%;">Description of Service</th>
+                                            <th class="border-right border-bottom text-center" style="width: 18%;">QTY in KG</th>
+                                            <th class="border-right border-bottom text-center" style="width: 12%;">RATE</th>
+                                            <th class="border-bottom text-center" style="width: 18%;">AMOUNT</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="p-items-tbody">
+                                        <!-- Javascript will populate this with exactly 8 rows to match the reference look if short, or expand dynamically -->
+                                    </tbody>
+                                </table>
+
+                                <!-- Summary Section (Total, Advance, Balance) -->
+                                <table class="invoice-table summary-table">
+                                    <tr>
+                                        <td class="border-right border-bottom border-top font-bold text-right" style="width: 82%; padding: 2px 8px; font-size: 11px;">TOTAL</td>
+                                        <td class="border-bottom border-top font-bold text-right" style="width: 18%; padding: 2px 8px; font-size: 11px;" id="p-total-amount">0.00</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="border-right border-bottom font-bold text-right" style="width: 82%; padding: 2px 8px; font-size: 11px;">ADVANCE</td>
+                                        <td class="border-bottom font-bold text-right" style="width: 18%; padding: 2px 8px; font-size: 11px;" id="p-advance-amount">0.00</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="border-right border-bottom font-bold text-right" style="width: 82%; padding: 2px 8px; font-size: 11px;">BALANCE</td>
+                                        <td class="border-bottom font-bold text-right" style="width: 18%; padding: 2px 8px; font-size: 11px;" id="p-balance-amount">0.00</td>
+                                    </tr>
+                                </table>
+
+                                <!-- Amount in Words Footer -->
+                                <table class="invoice-table amount-words-table">
+                                    <tr>
+                                        <td class="font-bold" style="padding: 4px 6px; font-size: 10px; line-height: 1.3;">
+                                            AMOUNT IN WORDS: <span id="p-amount-words">Zero Rupees Only......</span>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- App Footer (Hidden during printing) -->
+    <footer id="app-footer" class="no-print">
+        <div class="footer-container">
+            <p>&copy; 2026 JSS Engineering Works. All rights reserved. Created with <i class="fa-solid fa-heart text-gold"></i> for Jaffar Shareef.</p>
+        </div>
+    </footer>
+
+    <!-- JS Application Logic -->
+    <script src="app.js"></script>
+</body>
+</html>

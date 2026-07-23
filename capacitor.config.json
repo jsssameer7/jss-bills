@@ -1,0 +1,6 @@
+{
+  "appId": "com.jssengineering.billgenerator",
+  "appName": "JSS Bill Generator",
+  "webDir": "www",
+  "bundledWebRuntime": false
+}
