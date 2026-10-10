@@ -42,17 +42,18 @@ body {
     overflow-x: hidden;
 }
 
-/* Scrollbars */
+/* High Visibility Custom Scrollbars */
 ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+    width: 10px;
+    height: 10px;
 }
 ::-webkit-scrollbar-track {
-    background: #090a0c;
+    background: #0d0f14;
 }
 ::-webkit-scrollbar-thumb {
-    background: #2b303c;
-    border-radius: 3px;
+    background: #3b4252;
+    border-radius: 5px;
+    border: 2px solid #0d0f14;
 }
 ::-webkit-scrollbar-thumb:hover {
     background: var(--gold);
@@ -202,8 +203,9 @@ main {
 .billing-workspace {
     display: grid;
     grid-template-columns: 460px 1fr;
-    height: calc(100vh - 60px);
-    overflow: hidden;
+    min-height: calc(100vh - 60px);
+    overflow: visible;
+    align-items: start;
 }
 
 /* ============================================================
@@ -214,9 +216,9 @@ main {
     border-right: 1px solid var(--border-light);
     display: flex;
     flex-direction: column;
-    overflow-y: auto;
-    height: 100%;
+    min-height: 100%;
     padding: 16px;
+    padding-bottom: 50px;
 }
 
 .quick-toolbar {
@@ -480,11 +482,17 @@ input:focus, textarea:focus {
     display: grid;
     grid-template-columns: 1.2fr 1fr 1fr;
     gap: 8px;
-    margin-top: 16px;
+    margin-top: 20px;
     position: sticky;
-    bottom: 0;
-    background: var(--bg-card);
-    padding-top: 10px;
+    bottom: 12px;
+    background: rgba(21, 23, 29, 0.96);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 10px;
+    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.7);
+    z-index: 50;
 }
 
 .btn-action {
@@ -524,7 +532,9 @@ input:focus, textarea:focus {
     background: #181920;
     display: flex;
     flex-direction: column;
-    height: 100%;
+    position: sticky;
+    top: 60px;
+    height: calc(100vh - 60px);
     overflow: hidden;
 }
 
