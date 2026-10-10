@@ -556,8 +556,38 @@ input:focus, textarea:focus {
     overflow: auto;
     padding: 30px;
     display: flex;
-    justify-content: center;
-    align-items: flex-start;
+    flex-direction: column;
+    align-items: center;
+}
+
+.sheet-hint-badge {
+    background: rgba(212, 175, 55, 0.15);
+    border: 1px solid var(--border-color);
+    color: var(--gold-light);
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    margin-bottom: 16px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+/* Inline Direct Editing on Bill */
+[contenteditable="true"] {
+    cursor: text;
+    transition: background-color 0.15s ease, outline 0.15s ease;
+    border-radius: 2px;
+}
+[contenteditable="true"]:hover {
+    outline: 1.5px dashed rgba(212, 175, 55, 0.8);
+    background-color: rgba(212, 175, 55, 0.08);
+}
+[contenteditable="true"]:focus {
+    outline: 2px solid #d4af37 !important;
+    background-color: #fff9db !important;
+    color: #000000 !important;
 }
 
 /* ============================================================
@@ -815,11 +845,13 @@ input:focus, textarea:focus {
    PRINT MEDIA RULES (@media print)
    ============================================================ */
 @media print {
-    body {
+    html, body {
         background: #ffffff !important;
         color: #000000 !important;
         margin: 0 !important;
         padding: 0 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
     }
 
     .no-print,
@@ -830,6 +862,7 @@ input:focus, textarea:focus {
     .preview-top-bar,
     .quick-toolbar,
     .action-bar-bottom,
+    .sheet-hint-badge,
     #profile-section {
         display: none !important;
     }
@@ -858,6 +891,7 @@ input:focus, textarea:focus {
         margin: 0 !important;
         box-shadow: none !important;
         border: none !important;
+        background: #ffffff !important;
     }
 
     .invoice-box {
@@ -865,8 +899,22 @@ input:focus, textarea:focus {
         page-break-inside: avoid;
     }
 
+    .invoice-table td,
+    .invoice-table th {
+        border-color: #000000 !important;
+        color: #000000 !important;
+    }
+
+    [contenteditable="true"],
+    [contenteditable="true"]:hover,
+    [contenteditable="true"]:focus {
+        outline: none !important;
+        background: transparent !important;
+        border: none !important;
+    }
+
     @page {
-        size: A4;
-        margin: 10mm;
+        size: A4 portrait;
+        margin: 8mm;
     }
 }

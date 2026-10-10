@@ -46,6 +46,9 @@ function initApplication() {
         // Load sample invoice immediately on first open so user sees working bill!
         loadSampleInvoice();
         
+        // Setup direct interactive typing on the bill sheet
+        setupInteractiveBillSheet();
+        
         console.log("JSS Bill Generator initialized successfully.");
     } catch (err) {
         console.error("Init Error:", err);
@@ -306,6 +309,43 @@ function calculateInvoiceValues() {
     renderItemsPreview();
 }
 
+function calculateInvoiceValuesQuietly() {
+    const advInput = document.getElementById("advance-amount");
+    const advVal = advInput ? parseFloat(advInput.value) : 0;
+    invoiceState.advance = isNaN(advVal) ? 0 : advVal;
+
+    let total = 0;
+    invoiceState.items.forEach(item => {
+        const amt = parseFloat(item.amount);
+        if (!isNaN(amt)) total += amt;
+    });
+
+    const balance = total - invoiceState.advance;
+
+    // Update Form Brief
+    const elSub = document.getElementById("brief-subtotal");
+    if (elSub) elSub.innerText = "₹" + formatIndianCurrency(total);
+    const elAdv = document.getElementById("brief-advance");
+    if (elAdv) elAdv.innerText = "₹" + formatIndianCurrency(invoiceState.advance);
+    const elBal = document.getElementById("brief-balance");
+    if (elBal) elBal.innerText = "₹" + formatIndianCurrency(balance);
+
+    const badgeTotal = document.getElementById("mobile-badge-total");
+    if (badgeTotal) badgeTotal.innerText = "₹" + formatIndianCurrency(total);
+
+    // Update Sheet Totals without redrawing current cell
+    const pTot = document.getElementById("p-total-amount");
+    if (pTot) pTot.innerText = formatIndianCurrency(total);
+
+    const pBal = document.getElementById("p-balance-amount");
+    if (pBal) pBal.innerText = formatIndianCurrency(balance);
+
+    const wordsEl = document.getElementById("p-amount-words");
+    if (wordsEl && !invoiceState.wordsOverride) {
+        wordsEl.innerText = numberToIndianWords(balance);
+    }
+}
+
 function overrideWords() {
     const input = document.getElementById("amount-words-override");
     invoiceState.wordsOverride = input ? input.value : "";
@@ -334,18 +374,18 @@ function renderItemsPreview() {
 
             tr.innerHTML = `
                 <td class="border-right border-bottom text-center font-bold" style="font-size: 11px;">${i + 1}</td>
-                <td class="border-right border-bottom font-bold text-center" style="font-size: 11px; text-transform: uppercase;">${item.desc}</td>
-                <td class="border-right border-bottom text-center font-bold" style="font-size: 11px;">${qtyStr}</td>
-                <td class="border-right border-bottom text-center font-bold" style="font-size: 11px;">${rateStr}</td>
-                <td class="border-bottom text-right font-bold" style="font-size: 11px; padding-right: 8px;">${amtStr}</td>
+                <td class="border-right border-bottom font-bold text-center editable-cell" contenteditable="true" data-field="desc" data-index="${i}" title="Click to edit item description">${item.desc}</td>
+                <td class="border-right border-bottom text-center font-bold editable-cell" contenteditable="true" data-field="qty" data-index="${i}" title="Click to edit qty">${qtyStr}</td>
+                <td class="border-right border-bottom text-center font-bold editable-cell" contenteditable="true" data-field="rate" data-index="${i}" title="Click to edit rate">${rateStr}</td>
+                <td class="border-bottom text-right font-bold editable-cell" contenteditable="true" data-field="amount" data-index="${i}" title="Click to edit amount" style="padding-right: 8px;">${amtStr}</td>
             `;
         } else {
             tr.innerHTML = `
-                <td class="border-right border-bottom text-center"></td>
-                <td class="border-right border-bottom"></td>
-                <td class="border-right border-bottom"></td>
-                <td class="border-right border-bottom"></td>
-                <td class="border-bottom"></td>
+                <td class="border-right border-bottom text-center font-bold" style="font-size: 11px;">${i + 1}</td>
+                <td class="border-right border-bottom font-bold text-center editable-cell" contenteditable="true" data-field="desc" data-index="${i}" title="Click to type item description"></td>
+                <td class="border-right border-bottom text-center font-bold editable-cell" contenteditable="true" data-field="qty" data-index="${i}" title="Click to type qty"></td>
+                <td class="border-right border-bottom text-center font-bold editable-cell" contenteditable="true" data-field="rate" data-index="${i}" title="Click to type rate"></td>
+                <td class="border-bottom text-right font-bold editable-cell" contenteditable="true" data-field="amount" data-index="${i}" title="Click to type amount" style="padding-right: 8px;"></td>
             `;
         }
 
@@ -463,7 +503,124 @@ function resetInvoiceForm() {
 // PDF, IMAGE & PRINT EXPORTS
 // ============================================================
 function triggerPrint() {
-    window.print();
+    // If on mobile/tablet, switch to preview view first so print renderer captures the bill
+    if (window.innerWidth <= 900) {
+        setMobileView('preview');
+    }
+    setTimeout(() => {
+        window.print();
+    }, 150);
+}
+
+// Attach two-way live editing directly on the printable invoice sheet
+function setupInteractiveBillSheet() {
+    const sheet = document.getElementById("printable-invoice");
+    if (!sheet) return;
+
+    sheet.addEventListener("input", (e) => {
+        const target = e.target;
+        if (!target) return;
+
+        // 1. Table Cells (Description, Qty, Rate, Amount)
+        if (target.classList.contains("editable-cell")) {
+            const index = parseInt(target.getAttribute("data-index"));
+            const field = target.getAttribute("data-field");
+            const val = target.innerText.trim();
+
+            while (invoiceState.items.length <= index) {
+                invoiceState.items.push({ desc: "", qty: "", unit: "", rate: "", amount: "" });
+            }
+
+            const item = invoiceState.items[index];
+            if (field === "desc") {
+                item.desc = val;
+            } else if (field === "qty") {
+                const parts = val.split(" ");
+                item.qty = parts[0] || "";
+                if (parts[1]) item.unit = parts.slice(1).join(" ");
+            } else if (field === "rate") {
+                item.rate = val.replace(/[^0-9.]/g, "");
+            } else if (field === "amount") {
+                item.amount = val.replace(/[^0-9.]/g, "");
+            }
+
+            // Auto calculate amount if qty & rate entered
+            if (field === "qty" || field === "rate") {
+                const q = parseFloat(item.qty);
+                const r = parseFloat(item.rate);
+                if (!isNaN(q) && !isNaN(r)) {
+                    item.amount = Math.round(q * r).toString();
+                }
+            }
+
+            renderItemsEditor();
+            calculateInvoiceValuesQuietly();
+            return;
+        }
+
+        // 2. Vendor and Client fields
+        if (target.id === "p-seller-name") {
+            const val = target.innerText.trim();
+            invoiceState.seller.name = val;
+            const el = document.getElementById("seller-name");
+            if (el) el.value = val;
+        } else if (target.id === "p-seller-address") {
+            const val = target.innerText.trim();
+            invoiceState.seller.address = val;
+            const el = document.getElementById("seller-address");
+            if (el) el.value = val;
+        } else if (target.id === "p-seller-state") {
+            const val = target.innerText.trim();
+            invoiceState.seller.state = val;
+            const el = document.getElementById("seller-state");
+            if (el) el.value = val;
+        } else if (target.id === "p-seller-state-code") {
+            const val = target.innerText.trim();
+            invoiceState.seller.stateCode = val;
+            const el = document.getElementById("seller-state-code");
+            if (el) el.value = val;
+        } else if (target.id === "p-seller-pan") {
+            const val = target.innerText.trim();
+            invoiceState.seller.pan = val;
+            const el = document.getElementById("seller-pan");
+            if (el) el.value = val;
+        } else if (target.id === "p-copy-label") {
+            const val = target.innerText.trim();
+            invoiceState.seller.copyLabel = val;
+            const el = document.getElementById("invoice-copy-label");
+            if (el) el.value = val;
+        } else if (target.id === "p-client-name") {
+            const val = target.innerText.trim();
+            invoiceState.client.name = val;
+            const el = document.getElementById("client-name");
+            if (el) el.value = val;
+        } else if (target.id === "p-client-address") {
+            const val = target.innerText.trim();
+            invoiceState.client.address = val;
+            const el = document.getElementById("client-address");
+            if (el) el.value = val;
+        } else if (target.id === "p-invoice-date") {
+            const val = target.innerText.trim();
+            invoiceState.client.date = val;
+            const el = document.getElementById("invoice-date");
+            if (el) el.value = val;
+        } else if (target.id === "p-client-gstin") {
+            const val = target.innerText.trim();
+            invoiceState.client.gstin = val;
+            const el = document.getElementById("client-gstin");
+            if (el) el.value = val;
+        } else if (target.id === "p-advance-amount") {
+            const val = parseFloat(target.innerText.replace(/[^0-9.]/g, "")) || 0;
+            invoiceState.advance = val;
+            const el = document.getElementById("advance-amount");
+            if (el) el.value = val;
+            calculateInvoiceValuesQuietly();
+        } else if (target.id === "p-amount-words") {
+            invoiceState.wordsOverride = target.innerText.trim();
+            const el = document.getElementById("amount-words-override");
+            if (el) el.value = invoiceState.wordsOverride;
+        }
+    });
 }
 
 function downloadInvoicePDF() {

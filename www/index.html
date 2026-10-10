@@ -244,6 +244,9 @@
 
                     <!-- Scalable A4 Preview Area -->
                     <div class="a4-stage-container">
+                        <div class="sheet-hint-badge no-print">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i> <strong>Interactive Bill:</strong> You can type directly on this bill or use the form on the left!
+                        </div>
                         <div id="printable-invoice" class="invoice-sheet">
                             
                             <!-- BORDERED INVOICE CONTAINER -->
@@ -254,14 +257,14 @@
                                     <tr>
                                         <td class="col-left border-right border-bottom" style="width: 70%;">
                                             <div class="text-center font-bold main-title border-bottom-thin" style="padding: 3px 0;">INVOICE</div>
-                                            <div class="meta-row"><strong>Name:</strong> <span id="p-seller-name">JAFFAR SHAREEF</span></div>
-                                            <div class="meta-row"><strong>Address:</strong> <span id="p-seller-address">WARD NO-18, ATP ROAD, JANATHA NAGAR, BALLARI-583101</span></div>
-                                            <div class="meta-row"><strong>State:</strong> <span id="p-seller-state">KARNATAKA</span></div>
-                                            <div class="meta-row"><strong>State Code;</strong> <span id="p-seller-state-code">KA</span></div>
-                                            <div class="meta-row"><strong>PAN</strong> <span id="p-seller-pan">AAHPZ8535G</span></div>
+                                            <div class="meta-row"><strong>Name:</strong> <span id="p-seller-name" contenteditable="true" title="Click to edit vendor name">JAFFAR SHAREEF</span></div>
+                                            <div class="meta-row"><strong>Address:</strong> <span id="p-seller-address" contenteditable="true" title="Click to edit vendor address">WARD NO-18, ATP ROAD, JANATHA NAGAR, BALLARI-583101</span></div>
+                                            <div class="meta-row"><strong>State:</strong> <span id="p-seller-state" contenteditable="true" title="Click to edit state">KARNATAKA</span></div>
+                                            <div class="meta-row"><strong>State Code;</strong> <span id="p-seller-state-code" contenteditable="true" title="Click to edit state code">KA</span></div>
+                                            <div class="meta-row"><strong>PAN</strong> <span id="p-seller-pan" contenteditable="true" title="Click to edit PAN">AAHPZ8535G</span></div>
                                         </td>
                                         <td class="col-right border-bottom font-bold text-center" style="width: 30%; vertical-align: middle;">
-                                            <div id="p-copy-label" style="font-size: 11px; text-transform: uppercase; padding: 10px 4px; line-height: 1.4;">ORIGINAL FOR RECEIPMENT</div>
+                                            <div id="p-copy-label" contenteditable="true" title="Click to edit copy label" style="font-size: 11px; text-transform: uppercase; padding: 10px 4px; line-height: 1.4;">ORIGINAL FOR RECEIPMENT</div>
                                         </td>
                                     </tr>
                                 </table>
@@ -279,11 +282,11 @@
                                 <table class="invoice-table client-details-table">
                                     <tr>
                                         <td class="col-left border-right border-bottom" style="width: 70%; padding: 6px;">
-                                            <div class="client-name font-bold text-center" id="p-client-name" style="font-size: 13px; letter-spacing: 0.5px;">KATARIYA MOVERS</div>
-                                            <div class="client-address text-center" id="p-client-address" style="margin-top: 4px; font-size: 10px; line-height: 1.3;">PLOT No. 39, GHORPADE NAGAR, BEHIND BPCL PETROL PUMP, HOSPET-BALLARI MAIN ROAD, TORANAGALLU-583 123</div>
+                                            <div class="client-name font-bold text-center" id="p-client-name" contenteditable="true" title="Click to edit client name" style="font-size: 13px; letter-spacing: 0.5px;">KATARIYA MOVERS</div>
+                                            <div class="client-address text-center" id="p-client-address" contenteditable="true" title="Click to edit client address" style="margin-top: 4px; font-size: 10px; line-height: 1.3;">PLOT No. 39, GHORPADE NAGAR, BEHIND BPCL PETROL PUMP, HOSPET-BALLARI MAIN ROAD, TORANAGALLU-583 123</div>
                                         </td>
                                         <td class="col-right border-bottom font-bold text-center" style="width: 30%; vertical-align: middle; padding: 6px;">
-                                            <div style="font-size: 11px;">Invoice Date: <span id="p-invoice-date">11.7.26</span></div>
+                                            <div style="font-size: 11px;">Invoice Date: <span id="p-invoice-date" contenteditable="true" title="Click to edit date">11.7.26</span></div>
                                         </td>
                                     </tr>
                                 </table>
@@ -292,7 +295,7 @@
                                 <table class="invoice-table gstin-table">
                                     <tr>
                                         <td class="font-bold border-bottom" style="padding: 3px 6px; font-size: 11px;">
-                                            GSTIN: <span id="p-client-gstin"></span>
+                                            GSTIN: <span id="p-client-gstin" contenteditable="true" title="Click to edit GSTIN"></span>
                                         </td>
                                     </tr>
                                 </table>
@@ -321,7 +324,7 @@
                                     </tr>
                                     <tr>
                                         <td class="border-right border-bottom font-bold text-right" style="width: 82%; padding: 3px 8px; font-size: 11px;">ADVANCE</td>
-                                        <td class="border-bottom font-bold text-right" style="width: 18%; padding: 3px 8px; font-size: 11px;" id="p-advance-amount">0</td>
+                                        <td class="border-bottom font-bold text-right" style="width: 18%; padding: 3px 8px; font-size: 11px;" id="p-advance-amount" contenteditable="true" title="Click to edit advance">0</td>
                                     </tr>
                                     <tr>
                                         <td class="border-right border-bottom font-bold text-right" style="width: 82%; padding: 3px 8px; font-size: 11px;">BALANCE</td>
@@ -333,7 +336,7 @@
                                 <table class="invoice-table amount-words-table">
                                     <tr>
                                         <td class="font-bold" style="padding: 5px 8px; font-size: 10px; line-height: 1.3;">
-                                            AMOUNT IN WORDS: <span id="p-amount-words">Zero Rupees Only......</span>
+                                            AMOUNT IN WORDS: <span id="p-amount-words" contenteditable="true" title="Click to edit words">Zero Rupees Only......</span>
                                         </td>
                                     </tr>
                                 </table>
