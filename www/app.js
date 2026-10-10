@@ -65,20 +65,31 @@ if (document.readyState === "loading") {
 // ============================================================
 // TAB & MOBILE VIEW SWITCHING
 // ============================================================
-function switchMainTab(tabId) {
-    const panels = document.querySelectorAll(".main-tab-panel");
+function switchTab(tabId) {
+    const panels = document.querySelectorAll(".tab-content");
     panels.forEach(p => p.classList.remove("active"));
     
     const targetPanel = document.getElementById(`${tabId}-section`);
     if (targetPanel) targetPanel.classList.add("active");
 
-    const tabBtns = document.querySelectorAll(".nav-tab-btn");
-    tabBtns.forEach(btn => btn.classList.remove("active"));
-    
-    const targetBtn = document.getElementById(`tab-btn-${tabId}`);
-    if (targetBtn) targetBtn.classList.add("active");
+    const tabBtns = document.querySelectorAll(".nav-link");
+    tabBtns.forEach(btn => {
+        btn.classList.remove("active");
+        if (btn.getAttribute("href") === `#${tabId}`) {
+            btn.classList.add("active");
+        }
+    });
+
+    const navLinks = document.querySelector(".nav-links");
+    if (navLinks) navLinks.classList.remove("mobile-open");
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+window.switchMainTab = switchTab;
+
+function toggleMobileMenu() {
+    const nav = document.querySelector(".nav-links");
+    if (nav) nav.classList.toggle("mobile-open");
 }
 
 function setMobileView(view) {
@@ -96,12 +107,13 @@ function setMobileView(view) {
     }
 }
 
-function toggleCard(headEl) {
-    const card = headEl.closest(".form-card");
+function toggleCardBody(headEl) {
+    const card = headEl.closest(".editor-card") || headEl.closest(".form-card");
     if (card) {
         card.classList.toggle("collapsed");
     }
 }
+window.toggleCard = toggleCardBody;
 
 // ============================================================
 // DYNAMIC ITEM ROWS MANAGEMENT
@@ -113,9 +125,9 @@ function addNewItemRow() {
     
     // Focus the new row's description input
     setTimeout(() => {
-        const inputs = document.querySelectorAll(".item-edit-row input[type='text']");
+        const inputs = document.querySelectorAll(".item-editor-row input.item-desc");
         if (inputs.length > 0) {
-            inputs[inputs.length - 3].focus();
+            inputs[inputs.length - 1].focus();
         }
     }, 50);
 }
@@ -159,29 +171,29 @@ function renderItemsEditor() {
 
     invoiceState.items.forEach((item, index) => {
         const row = document.createElement("div");
-        row.className = "item-edit-row";
+        row.className = "item-editor-row";
         row.innerHTML = `
-            <div class="item-top">
-                <input type="text" value="${item.desc}" placeholder="Description (e.g. SQURE TUBE)" oninput="handleItemFieldChange(${index}, 'desc', this.value)">
-                <button class="btn-del-item" onclick="deleteItemRow(${index})" title="Remove item">
+            <div class="item-editor-row-top">
+                <input type="text" class="item-desc" value="${item.desc}" placeholder="Description of Service (e.g. SQURE TUBE)" oninput="handleItemFieldChange(${index}, 'desc', this.value)">
+                <button class="item-delete-btn" onclick="deleteItemRow(${index})" title="Remove item">
                     <i class="fa-solid fa-trash-can"></i>
                 </button>
             </div>
-            <div class="item-bottom">
-                <div>
-                    <label>Qty</label>
+            <div class="item-editor-row-bottom">
+                <div class="item-qty">
+                    <label style="font-size: 10px; color: var(--text-muted); display: block; margin-bottom: 2px;">Qty</label>
                     <input type="text" value="${item.qty}" placeholder="5272" oninput="handleItemFieldChange(${index}, 'qty', this.value)">
                 </div>
-                <div>
-                    <label>Unit</label>
-                    <input type="text" value="${item.unit}" placeholder="kg / sq.m" oninput="handleItemFieldChange(${index}, 'unit', this.value)">
+                <div class="item-unit">
+                    <label style="font-size: 10px; color: var(--text-muted); display: block; margin-bottom: 2px;">Unit</label>
+                    <input type="text" value="${item.unit}" placeholder="kg" oninput="handleItemFieldChange(${index}, 'unit', this.value)">
                 </div>
-                <div>
-                    <label>Rate (₹)</label>
+                <div class="item-rate">
+                    <label style="font-size: 10px; color: var(--text-muted); display: block; margin-bottom: 2px;">Rate (₹)</label>
                     <input type="number" value="${item.rate}" placeholder="26" oninput="handleItemFieldChange(${index}, 'rate', this.value)">
                 </div>
-                <div>
-                    <label>Amount (₹)</label>
+                <div class="item-amount">
+                    <label style="font-size: 10px; color: var(--text-muted); display: block; margin-bottom: 2px;">Amount (₹)</label>
                     <input type="number" id="item-amount-${index}" value="${item.amount}" placeholder="Auto" oninput="handleItemFieldChange(${index}, 'amount', this.value)">
                 </div>
             </div>
@@ -503,13 +515,7 @@ function resetInvoiceForm() {
 // PDF, IMAGE & PRINT EXPORTS
 // ============================================================
 function triggerPrint() {
-    // If on mobile/tablet, switch to preview view first so print renderer captures the bill
-    if (window.innerWidth <= 900) {
-        setMobileView('preview');
-    }
-    setTimeout(() => {
-        window.print();
-    }, 150);
+    window.print();
 }
 
 // Attach two-way live editing directly on the printable invoice sheet
@@ -621,6 +627,14 @@ function setupInteractiveBillSheet() {
             if (el) el.value = invoiceState.wordsOverride;
         }
     });
+
+    sheet.addEventListener("blur", (e) => {
+        const target = e.target;
+        if (!target) return;
+        if (target.id === "p-advance-amount") {
+            target.innerText = formatIndianCurrency(invoiceState.advance);
+        }
+    }, true);
 }
 
 function downloadInvoicePDF() {
