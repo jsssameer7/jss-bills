@@ -83,6 +83,22 @@ function switchTab(tabId) {
         }
     });
 
+    // Update bottom nav active state
+    const bottomNavItems = document.querySelectorAll(".bottom-nav-item");
+    bottomNavItems.forEach(item => {
+        if (item.getAttribute("data-tab") === tabId) {
+            item.classList.add("active");
+        } else {
+            item.classList.remove("active");
+        }
+    });
+
+    // Show/hide sticky action bar based on tab
+    const stickyBar = document.querySelector(".mobile-sticky-bar");
+    if (stickyBar) {
+        stickyBar.style.display = (tabId === "billing" && window.innerWidth <= 992) ? "flex" : "none";
+    }
+
     const navLinks = document.querySelector(".nav-links");
     if (navLinks) navLinks.classList.remove("mobile-open");
 
@@ -107,7 +123,7 @@ function setMobileView(view) {
         if (toggleViewBtn) {
             toggleViewBtn.innerHTML = `<i class="fa-solid fa-pen-to-square"></i> Edit`;
         }
-        updateMobileSheetZoom();
+        setTimeout(updateMobileSheetZoom, 60);
     } else {
         document.body.classList.remove("show-preview-mode");
         if (btnEditor) btnEditor.classList.add("active");
@@ -130,29 +146,61 @@ function toggleMobileView() {
 function toggleFitSheet() {
     const wrapper = document.querySelector(".invoice-a4-wrapper");
     const label = document.getElementById("fit-label");
+    const mLabel = document.getElementById("m-fit-label");
     if (!wrapper) return;
 
     if (wrapper.classList.contains("zoom-full")) {
         wrapper.classList.remove("zoom-full");
         if (label) label.innerText = "Zoom 100%";
+        if (mLabel) mLabel.innerText = "100% Zoom";
         updateMobileSheetZoom();
     } else {
         wrapper.classList.add("zoom-full");
         if (label) label.innerText = "Fit Screen";
+        if (mLabel) mLabel.innerText = "Fit Screen";
+        const sheet = document.getElementById("printable-invoice");
+        if (sheet) {
+            sheet.style.transform = "none";
+        }
+        wrapper.style.minHeight = "auto";
     }
 }
 
 function updateMobileSheetZoom() {
     if (window.innerWidth <= 992) {
         const wrapper = document.querySelector(".invoice-a4-wrapper");
-        if (wrapper) {
-            const availWidth = wrapper.clientWidth - 16;
-            const targetZoom = Math.min(1, Math.max(0.35, availWidth / 800));
+        const sheet = document.getElementById("printable-invoice");
+        if (wrapper && sheet) {
+            if (wrapper.classList.contains("zoom-full")) {
+                sheet.style.transform = "none";
+                sheet.style.transformOrigin = "top left";
+                wrapper.style.minHeight = "auto";
+                return;
+            }
+            const availWidth = Math.max(280, wrapper.clientWidth - 16);
+            const sheetWidth = 800; // standard A4 sheet rendered width
+            const targetZoom = Math.min(1, Math.max(0.35, availWidth / sheetWidth));
+            
             document.documentElement.style.setProperty("--mobile-sheet-zoom", targetZoom.toFixed(2));
+            sheet.style.transform = `scale(${targetZoom.toFixed(3)})`;
+            sheet.style.transformOrigin = "top center";
+            
+            const scaledH = Math.ceil(sheet.offsetHeight * targetZoom);
+            if (scaledH > 0) {
+                wrapper.style.minHeight = `${scaledH + 20}px`;
+            }
         }
+    } else {
+        const sheet = document.getElementById("printable-invoice");
+        const wrapper = document.querySelector(".invoice-a4-wrapper");
+        if (sheet) sheet.style.transform = "none";
+        if (wrapper) wrapper.style.minHeight = "auto";
     }
 }
-window.addEventListener("resize", updateMobileSheetZoom);
+window.addEventListener("resize", () => {
+    clearTimeout(window._resizeTimer);
+    window._resizeTimer = setTimeout(updateMobileSheetZoom, 100);
+});
 window.addEventListener("orientationchange", () => setTimeout(updateMobileSheetZoom, 200));
 
 function toggleCardBody(headEl) {
@@ -221,28 +269,31 @@ function renderItemsEditor() {
         const row = document.createElement("div");
         row.className = "item-editor-row";
         row.innerHTML = `
-            <div class="item-editor-row-top">
-                <input type="text" class="item-desc" value="${item.desc}" placeholder="Description of Service (e.g. SQURE TUBE)" oninput="handleItemFieldChange(${index}, 'desc', this.value)">
-                <button class="item-delete-btn" onclick="deleteItemRow(${index})" title="Remove item">
+            <div class="item-row-header-badge">
+                <span class="item-chip"><i class="fa-solid fa-layer-group"></i> Item #${index + 1}</span>
+                <button class="item-delete-btn" onclick="deleteItemRow(${index})" title="Remove item" aria-label="Delete item">
                     <i class="fa-solid fa-trash-can"></i>
                 </button>
             </div>
+            <div class="item-editor-row-top">
+                <input type="text" class="item-desc" value="${item.desc || ''}" placeholder="Service Description (e.g. SQURE TUBE)" oninput="handleItemFieldChange(${index}, 'desc', this.value)">
+            </div>
             <div class="item-editor-row-bottom">
                 <div class="item-qty">
-                    <label style="font-size: 10px; color: var(--text-muted); display: block; margin-bottom: 2px;">Qty</label>
-                    <input type="text" value="${item.qty}" placeholder="5272" oninput="handleItemFieldChange(${index}, 'qty', this.value)">
+                    <label style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 2px;">Qty</label>
+                    <input type="text" value="${item.qty || ''}" placeholder="5272" oninput="handleItemFieldChange(${index}, 'qty', this.value)">
                 </div>
                 <div class="item-unit">
-                    <label style="font-size: 10px; color: var(--text-muted); display: block; margin-bottom: 2px;">Unit</label>
-                    <input type="text" value="${item.unit}" placeholder="kg" oninput="handleItemFieldChange(${index}, 'unit', this.value)">
+                    <label style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 2px;">Unit</label>
+                    <input type="text" value="${item.unit || ''}" placeholder="kg" oninput="handleItemFieldChange(${index}, 'unit', this.value)">
                 </div>
                 <div class="item-rate">
-                    <label style="font-size: 10px; color: var(--text-muted); display: block; margin-bottom: 2px;">Rate (₹)</label>
-                    <input type="number" value="${item.rate}" placeholder="26" oninput="handleItemFieldChange(${index}, 'rate', this.value)">
+                    <label style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 2px;">Rate (₹)</label>
+                    <input type="number" value="${item.rate || ''}" placeholder="26" oninput="handleItemFieldChange(${index}, 'rate', this.value)">
                 </div>
                 <div class="item-amount">
-                    <label style="font-size: 10px; color: var(--text-muted); display: block; margin-bottom: 2px;">Amount (₹)</label>
-                    <input type="number" id="item-amount-${index}" value="${item.amount}" placeholder="Auto" oninput="handleItemFieldChange(${index}, 'amount', this.value)">
+                    <label style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 2px;">Amount (₹)</label>
+                    <input type="number" id="item-amount-${index}" value="${item.amount || ''}" placeholder="Auto" oninput="handleItemFieldChange(${index}, 'amount', this.value)">
                 </div>
             </div>
         `;
@@ -356,6 +407,25 @@ function calculateInvoiceValues() {
     const mBadgeCount = document.getElementById("mobile-items-badge");
     if (mBadgeCount) mBadgeCount.innerText = invoiceState.items.length;
 
+    // Update Mobile Overview Card
+    const mClient = document.getElementById("m-client-name");
+    if (mClient) mClient.innerText = invoiceState.client.name || "CLIENT NAME";
+
+    const mDate = document.getElementById("m-invoice-date");
+    if (mDate) mDate.innerText = invoiceState.client.date || "";
+
+    const mCount = document.getElementById("m-item-count");
+    if (mCount) mCount.innerText = `${invoiceState.items.length} ${invoiceState.items.length === 1 ? 'item' : 'items'}`;
+
+    const mTot = document.getElementById("m-total-val");
+    if (mTot) mTot.innerText = "₹" + formatIndianCurrency(total);
+
+    const mAdv = document.getElementById("m-advance-val");
+    if (mAdv) mAdv.innerText = "₹" + formatIndianCurrency(invoiceState.advance);
+
+    const mBal = document.getElementById("m-balance-due");
+    if (mBal) mBal.innerText = "₹" + formatIndianCurrency(balance);
+
     // Update Printable Sheet
     const pTot = document.getElementById("p-total-amount");
     if (pTot) pTot.innerText = formatIndianCurrency(total);
@@ -408,6 +478,22 @@ function calculateInvoiceValuesQuietly() {
 
     const mBarBalQuiet = document.getElementById("mobile-bar-balance");
     if (mBarBalQuiet) mBarBalQuiet.innerText = "(Bal: ₹" + formatIndianCurrency(balance) + ")";
+
+    // Update Mobile Overview Card
+    const mClientQuiet = document.getElementById("m-client-name");
+    if (mClientQuiet) mClientQuiet.innerText = invoiceState.client.name || "CLIENT NAME";
+
+    const mDateQuiet = document.getElementById("m-invoice-date");
+    if (mDateQuiet) mDateQuiet.innerText = invoiceState.client.date || "";
+
+    const mTotQuiet = document.getElementById("m-total-val");
+    if (mTotQuiet) mTotQuiet.innerText = "₹" + formatIndianCurrency(total);
+
+    const mAdvQuiet = document.getElementById("m-advance-val");
+    if (mAdvQuiet) mAdvQuiet.innerText = "₹" + formatIndianCurrency(invoiceState.advance);
+
+    const mBalQuiet = document.getElementById("m-balance-due");
+    if (mBalQuiet) mBalQuiet.innerText = "₹" + formatIndianCurrency(balance);
 
     // Update Sheet Totals without redrawing current cell
     const pTot = document.getElementById("p-total-amount");
@@ -759,4 +845,43 @@ function downloadInvoiceImage() {
     } else {
         alert("Image generator library is not loaded. Please use Print / PDF.");
     }
+}
+
+function shareOnWhatsApp() {
+    const clientName = (document.getElementById("client-name")?.value || invoiceState.client.name || "Client").trim();
+    const dateStr = (document.getElementById("invoice-date")?.value || invoiceState.client.date || "").trim();
+    
+    let total = 0;
+    let itemsText = "";
+    invoiceState.items.forEach((item, idx) => {
+        const amt = parseFloat(item.amount) || 0;
+        total += amt;
+        if (item.desc) {
+            const qtyStr = item.qty ? ` (${item.qty} ${item.unit || ''})` : "";
+            const rateStr = item.rate ? ` @ ₹${item.rate}` : "";
+            itemsText += `\n${idx + 1}. *${item.desc}*${qtyStr}${rateStr} = ₹${formatIndianCurrency(amt)}`;
+        }
+    });
+
+    const advance = invoiceState.advance || 0;
+    const balance = total - advance;
+
+    const message = `*JSS ENGINEERING WORKS - BILL SUMMARY*
+Janatha Nagar, ATP Road, Ballari - 583101
+Phone: +91 98457 37632 (Jaffar Shareef)
+----------------------------------------
+*Client:* ${clientName}
+*Date:* ${dateStr}
+
+*SERVICES / ITEMS:*${itemsText}
+----------------------------------------
+*Total Amount:* ₹${formatIndianCurrency(total)}
+*Advance Paid:* ₹${formatIndianCurrency(advance)}
+*Balance Due:* ₹${formatIndianCurrency(balance)}
+----------------------------------------
+Generated via JSS Bill Portal:
+https://jsssameer7.github.io/jss-bills/`;
+
+    const encoded = encodeURIComponent(message);
+    window.open(`https://api.whatsapp.com/send?text=${encoded}`, '_blank');
 }
