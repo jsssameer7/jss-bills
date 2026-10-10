@@ -48,6 +48,9 @@ function initApplication() {
         
         // Setup direct interactive typing on the bill sheet
         setupInteractiveBillSheet();
+
+        // Calculate responsive scale for mobile phones
+        updateMobileSheetZoom();
         
         console.log("JSS Bill Generator initialized successfully.");
     } catch (err) {
@@ -95,17 +98,62 @@ function toggleMobileMenu() {
 function setMobileView(view) {
     const btnEditor = document.getElementById("btn-show-editor");
     const btnPreview = document.getElementById("btn-show-preview");
+    const toggleViewBtn = document.getElementById("mobile-toggle-view-btn");
 
     if (view === 'preview') {
         document.body.classList.add("show-preview-mode");
         if (btnEditor) btnEditor.classList.remove("active");
         if (btnPreview) btnPreview.classList.add("active");
+        if (toggleViewBtn) {
+            toggleViewBtn.innerHTML = `<i class="fa-solid fa-pen-to-square"></i> Edit`;
+        }
+        updateMobileSheetZoom();
     } else {
         document.body.classList.remove("show-preview-mode");
         if (btnEditor) btnEditor.classList.add("active");
         if (btnPreview) btnPreview.classList.remove("active");
+        if (toggleViewBtn) {
+            toggleViewBtn.innerHTML = `<i class="fa-regular fa-eye"></i> Preview`;
+        }
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function toggleMobileView() {
+    if (document.body.classList.contains("show-preview-mode")) {
+        setMobileView('editor');
+    } else {
+        setMobileView('preview');
     }
 }
+
+function toggleFitSheet() {
+    const wrapper = document.querySelector(".invoice-a4-wrapper");
+    const label = document.getElementById("fit-label");
+    if (!wrapper) return;
+
+    if (wrapper.classList.contains("zoom-full")) {
+        wrapper.classList.remove("zoom-full");
+        if (label) label.innerText = "Zoom 100%";
+        updateMobileSheetZoom();
+    } else {
+        wrapper.classList.add("zoom-full");
+        if (label) label.innerText = "Fit Screen";
+    }
+}
+
+function updateMobileSheetZoom() {
+    if (window.innerWidth <= 992) {
+        const wrapper = document.querySelector(".invoice-a4-wrapper");
+        if (wrapper) {
+            const availWidth = wrapper.clientWidth - 16;
+            const targetZoom = Math.min(1, Math.max(0.35, availWidth / 800));
+            document.documentElement.style.setProperty("--mobile-sheet-zoom", targetZoom.toFixed(2));
+        }
+    }
+}
+window.addEventListener("resize", updateMobileSheetZoom);
+window.addEventListener("orientationchange", () => setTimeout(updateMobileSheetZoom, 200));
 
 function toggleCardBody(headEl) {
     const card = headEl.closest(".editor-card") || headEl.closest(".form-card");
@@ -298,6 +346,16 @@ function calculateInvoiceValues() {
     const badgeTotal = document.getElementById("mobile-badge-total");
     if (badgeTotal) badgeTotal.innerText = "₹" + formatIndianCurrency(total);
 
+    // Update Mobile Sticky Bar & Items Badge
+    const mBarTot = document.getElementById("mobile-bar-total");
+    if (mBarTot) mBarTot.innerText = "₹" + formatIndianCurrency(total);
+
+    const mBarBal = document.getElementById("mobile-bar-balance");
+    if (mBarBal) mBarBal.innerText = "(Bal: ₹" + formatIndianCurrency(balance) + ")";
+
+    const mBadgeCount = document.getElementById("mobile-items-badge");
+    if (mBadgeCount) mBadgeCount.innerText = invoiceState.items.length;
+
     // Update Printable Sheet
     const pTot = document.getElementById("p-total-amount");
     if (pTot) pTot.innerText = formatIndianCurrency(total);
@@ -344,6 +402,12 @@ function calculateInvoiceValuesQuietly() {
 
     const badgeTotal = document.getElementById("mobile-badge-total");
     if (badgeTotal) badgeTotal.innerText = "₹" + formatIndianCurrency(total);
+
+    const mBarTotQuiet = document.getElementById("mobile-bar-total");
+    if (mBarTotQuiet) mBarTotQuiet.innerText = "₹" + formatIndianCurrency(total);
+
+    const mBarBalQuiet = document.getElementById("mobile-bar-balance");
+    if (mBarBalQuiet) mBarBalQuiet.innerText = "(Bal: ₹" + formatIndianCurrency(balance) + ")";
 
     // Update Sheet Totals without redrawing current cell
     const pTot = document.getElementById("p-total-amount");
